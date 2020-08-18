@@ -11,10 +11,12 @@ opspath = audioguide.optionsfiletest(sys.argv)
 sys.path.append(libpath)
 # import audioguide's submodules
 from audioguide import sfsegment, concatenativeclasses, simcalc, userinterface, util, descriptordata, anallinkage, musicalwriting
+from audioguide.exceptions import AudioGuideError
 # import other modules
 import numpy as np
 import json
 
+raise AudioGuideError("CONFIG", "Frame by frame concatenation is only possible with the agConcatenateFrames.py script.")
 
 
 
@@ -23,7 +25,7 @@ import json
 ###########################################
 ops = concatenativeclasses.parseOptions(opsfile=opspath, defaults=defaultpath, scriptpath=os.path.dirname(__file__))
 if 'concateMethod' in ops.EXPERIMENTAL and ops.EXPERIMENTAL['concateMethod'] == 'framebyframe':
-	util.error("CONFIG", "Frame by frame concatenation is only possible with the agConcatenateFrames.py script.")
+	raise AudioGuideError("CONFIG", "Frame by frame concatenation is only possible with the agConcatenateFrames.py script.")
 
 
 p = userinterface.printer(ops.VERBOSITY, os.path.dirname(__file__), ops.HTML_LOG_FILEPATH)
@@ -41,7 +43,11 @@ tgt.initAnal(AnalInterface, ops, p)
 tgt.stageSegments(AnalInterface, ops, p)
 
 if len(tgt.segs) == 0:
-	util.error("TARGET FILE", "no segments found!  this is rather strange.  could your target file %s be digital silence??"%(tgt.filename))
+	raise AudioGuideError(
+		"TARGET FILE", 
+		f"no segments found!  this is rather strange.  could your target file {tgt.filename} be digital silence??"
+	)
+
 p.log("TARGET SEGMENTATION: found %i segments with an average length of %.3f seconds"%(len(tgt.segs), np.average(tgt.seglengths)))
 #######################
 ## target label file ##

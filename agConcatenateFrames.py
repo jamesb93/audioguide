@@ -23,7 +23,7 @@ import json
 ###########################################
 ops = concatenativeclasses.parseOptions(opsfile=opspath, defaults=defaultpath, scriptpath=os.path.dirname(__file__))
 if 'concateMethod' not in ops.EXPERIMENTAL or ops.EXPERIMENTAL['concateMethod'] != 'framebyframe':
-	util.error("CONFIG", "agConcatenateFrames.py only supports frame by frame concatenation, e.g. examples/07-concatenateframes.py.")
+	raise AudioGuideError("CONFIG", "agConcatenateFrames.py only supports frame by frame concatenation, e.g. examples/07-concatenateframes.py.")
 p = userinterface.printer(ops.VERBOSITY, os.path.dirname(__file__), ops.HTML_LOG_FILEPATH)
 p.printProgramInfo(audioguide.__version__)
 AnalInterface = ops.createAnalInterface(p)
@@ -41,7 +41,11 @@ tgt.initAnal(AnalInterface, ops, p)
 tgt.stageSegments(AnalInterface, ops, p)
 
 if len(tgt.segs) == 0:
-	util.error("TARGET FILE", "no segments found!  this is rather strange.  could your target file %s be digital silence??"%(tgt.filename))
+	raise AudioGuideError(
+		"TARGET FILE", 
+		f"no segments found!  this is rather strange.  could your target file {tgt.filename} be digital silence??"
+	)
+
 p.log("TARGET SEGMENTATION: found %i segments with an average length of %.3f seconds"%(len(tgt.segs), np.average(tgt.seglengths)))
 #############################
 ## target descriptors file ##

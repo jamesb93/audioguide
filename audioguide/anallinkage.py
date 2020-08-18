@@ -7,6 +7,7 @@ import sys, os, subprocess, time, json
 sys.path.insert(0, os.path.dirname(__file__)) # look here first
 import numpy as np
 import audioguide.util as util
+from audioguide.exceptions import AudioGuideError
 
 
 def findbin(userstring, filehead, searchdirectories=['/Applications', os.path.join(os.getenv("HOME"), 'Applications')]):
@@ -319,7 +320,12 @@ EnergyEnvelope  = 1
 		out = out.decode('utf-8')
 		# test for bad exit status
 		if err not in [0, b'']:
-			util.error('commandline', 'AudioGuide command line call failed: \n"%s"%s%s'%(' '.join(command), '\n--------\n\n', out))	
+			cmd_string = ' '.join(command)	
+			raise AudioGuideError(
+				"COMMAND LINE",
+				f'AudioGuide command line call failed: \n"{cmd_string}" \n--------\n\n {out}'
+			)
+			
 		infodict = {'ircamd_columns': {'power': 0}}
 		# fill output dict if requested
 		for o in out.split('\n'):
